@@ -83,12 +83,8 @@
             <v-toolbar flat>
               <v-toolbar-title>members</v-toolbar-title>
               <v-spacer/>
-              <v-btn
-                class="mx-2"
-                dark>
-                <v-icon>mdi-account-plus</v-icon>
-                <span>Add users</span>
-              </v-btn>
+              <AddUserDialog
+                @userAdd="add_user($event)"/>
             </v-toolbar>
             <v-divider/>
           </template>
@@ -111,7 +107,7 @@
                 :to="{name: 'create_group', query: {parent: group_id}}"
                 dark>
                 <v-icon>mdi-account-multiple-plus</v-icon>
-                <span>Create subgroup</span>
+                <span class="ml-2">Create subgroup</span>
               </v-btn>
             </v-toolbar>
             <v-divider/>
@@ -128,11 +124,11 @@
 
 <script>
 // @ is an alias to /src
-
+import AddUserDialog from '@/components/AddUserDialog.vue'
 export default {
   name: 'Home',
   components: {
-
+    AddUserDialog
   },
   data(){
     return {
@@ -140,7 +136,8 @@ export default {
       members_table_headers: [
         {text: 'ID', value: 'user_id'},
         {text: 'Username', value: 'username'},
-        {text: 'Admin', value: 'admin'}
+        {text: 'Admin', value: 'admin'},
+        {text: 'Delete', value: 'delete'},
       ],
       subgroups_table_headers: [
         {text: 'ID', value: '_id'},
@@ -217,6 +214,18 @@ export default {
       this.axios.delete(url)
       .then( () => {
         this.$router.push({name: 'groups'})
+      })
+      .catch( error => {
+        console.error(error)
+      })
+    },
+    add_user({_id}){
+      console.log(_id)
+      const url = `${process.env.VUE_APP_GROUP_MANAGER_API_URL}/groups/${this.group_id}/members`
+      const body = {user_id: _id}
+      this.axios.post(url, body)
+      .then( () => {
+        this.get_group()
       })
       .catch( error => {
         console.error(error)
